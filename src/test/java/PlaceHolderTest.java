@@ -11,7 +11,7 @@ public class PlaceHolderTest {
     }
 
 	@Test
-	public void sendHedgingPositionWithoutResultReturned() {
+	public void sendHedgingPositionWithDefaultPositionReturned() {
         HedgingPositionManagementImpl hedgingPositionManagement = new HedgingPositionManagementImpl();
         hedgingPositionManagement.setHedginPositionMgrInvoker(new HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
             @Override
