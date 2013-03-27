@@ -16,7 +16,9 @@ public class PlaceHolderTest {
         hedgingPositionManagement.setHedginPositionMgrInvoker(new HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
             @Override
             public CheckResult<HedgingPosition> invoke(HedgingPosition hp) {
-                return new CheckResult<HedgingPosition>();
+                CheckResult<HedgingPosition> result = new CheckResult<HedgingPosition>();
+                result.setResult(new HedgingPosition());
+                return result;
             }
         });
 
