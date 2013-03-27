@@ -91,9 +91,8 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		return result;
 	}
 
-	private HedgingPosition updateHedgingPosition(HedgingPosition hp) {
+	private HedgingPosition updateHedgingPosition(HedgingPosition hp)  {
 		HedgingPosition hpUpdate = SerializationUtils.clone(hp);
-		try {
 			if (hp.getType().equals(HedgingPositionTypeConst.INI)) {
 				hpUpdate.setTransactionId(hp.getTransactionId());
 				Modif modif = new Modif();
@@ -105,15 +104,7 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 				hp.setStorageUpdate(StorageActionEnum.UPDATE);
 				hpUpdate = transactionManagerService.classStorageAction(hp);
 			}
-		} catch(Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(),e);
-            try {
-                throw e;
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-		return hpUpdate;
+        return hpUpdate;
 	}
 
 	private HedgingPosition initHedgingPosition(HedgingPosition hp) {
