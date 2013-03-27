@@ -78,4 +78,18 @@ public class Transaction extends BaseDTO {
 	public void setOuterEdge(Long outerEdge) {
 		this.outerEdge = outerEdge;
 	}
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "bookName='" + bookName + '\'' +
+                ", valueDate=" + valueDate +
+                ", outerEdge=" + outerEdge +
+                ", way=" + way +
+                ", positionKey='" + positionKey + '\'' +
+                ", issueDate=" + issueDate +
+                ", tradeDate=" + tradeDate +
+                ", dateRange=" + dateRange +
+                '}';
+    }
 }

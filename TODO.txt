@@ -9,11 +9,4 @@
 - refactor() updateHedgingPosition ?
 
 
-- mock the static call HedgingPositionMgt.hedgingPositionMgt() to make the test faster
-        - with interface and impl
-        - with protected method subclassed
-
-
 - golden copy
-
-- instanciate the class
