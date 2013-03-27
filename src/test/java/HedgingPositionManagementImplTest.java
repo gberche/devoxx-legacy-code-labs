@@ -3,7 +3,6 @@ import legacy.dto.DateRange;
 import legacy.dto.Transaction;
 import legacy.error.CheckResult;
 import legacy.hedge.HedgingPosition;
-import legacy.hedge.HedgingPositionManagementImpl;
 import legacy.service.ITradingDataAccessService;
 import legacy.service.TransactionWay;
 import org.junit.Test;
@@ -14,17 +13,17 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PlaceHolderTest {
+public class HedgingPositionManagementImplTest {
 
 	@Test
 	public void instanciateClass() {
-        HedgingPositionManagementImpl hedgingPositionManagement = new HedgingPositionManagementImpl();
+        legacy.hedge.HedgingPositionManagementImpl hedgingPositionManagement = new legacy.hedge.HedgingPositionManagementImpl();
     }
 
 	@Test
 	public void sendHedgingPositionWithDefaultPositionReturned() {
-        HedgingPositionManagementImpl hedgingPositionManagement = new HedgingPositionManagementImpl();
-        hedgingPositionManagement.setHedginPositionMgrInvoker(new HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
+        legacy.hedge.HedgingPositionManagementImpl hedgingPositionManagement = new legacy.hedge.HedgingPositionManagementImpl();
+        hedgingPositionManagement.setHedginPositionMgrInvoker(new legacy.hedge.HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
             @Override
             public CheckResult<HedgingPosition> invoke(HedgingPosition hp) {
                 Assert.assertEquals("HedgingPosition{basprx=0.0, transactionId=0, type=INI, status=null, valueDate=null, noticePeriodEndDate=null, combck='0 0 CONTROL: [0x0x0x01h]', codetyptkt=20, transactionWay='S', errorLevel=null, hedgeMsg='null', storageAction=null, prxref=0.0, daprx=null, quantity='0.0', datefinthe=null, codtyptra=23, msgdev='null', msgerr='null', niverr=null, msgusr='null', ikRtH='autobot', hedgingTransactionId='null'}", hp.toString());

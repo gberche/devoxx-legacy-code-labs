@@ -20,8 +20,7 @@ import java.util.logging.Logger;
 
 public class HedgingPositionManagementImpl implements IHedgingPositionManagement {
 
-	private static int MAX_DECIMALS = 4;
-	private static Logger LOGGER = Logger.getLogger(HedgingPositionManagementImpl.class.getName());
+    private static Logger LOGGER = Logger.getLogger(HedgingPositionManagementImpl.class.getName());
     private ITradingDataAccessService tradingDataAccessService = DataAccessService.getTradingDataAccessService();
     private ITransactionManagerService transactionManagerService = DataAccessService.getTransactionManagerService();
 
@@ -35,8 +34,7 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		} catch (Exception e) {
 			String errorMsg = "TECHNICAL ERROR, cannot initialize HP to send";
 			LOGGER.log(Level.SEVERE, errorMsg, e);
-			String msg = hp.getErrorLevel().createHMsgFromError();
-			hp.setHedgeMsg(msg);
+            hp.setHedgeMsg(hp.getErrorLevel().createHMsgFromError());
 			result.setCheckIsOk(false);
 			try {
 				updateHedgingPosition(hp);
@@ -92,14 +90,7 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 
 
     private CheckResult<HedgingPosition> hedgePositionBySendTo3rdParty(HedgingPosition hp) {
-		if (LOGGER.isLoggable(Level.FINEST)) {
-			LOGGER.log(Level.FINEST,"Begin 3r party processing. stand by");
-		}
-		CheckResult<HedgingPosition> result;
-        result = hedginPositionMgrInvoker.invoke(hp);
-		if (LOGGER.isLoggable(Level.FINEST)) {
-			LOGGER.log(Level.FINEST,"3r party processing is now finished, thank you for your patience"); // t'es con michel
-		}
+        CheckResult<HedgingPosition> result = hedginPositionMgrInvoker.invoke(hp);
 		return result;
 	}
 
