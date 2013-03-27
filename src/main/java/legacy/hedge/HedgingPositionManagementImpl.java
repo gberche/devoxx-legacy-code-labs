@@ -51,24 +51,8 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 				updateHedgingPosition(hp);
 			} else {
 				hp = result.getResult();
-				switch(hp.getErrorLevel()){
-					case FUNCTIONAL_ERROR:{
-						hp.setStatus(HedgingPositionStatusConst.REJECTED);
-						break;
-					}
-					case CONNECT_ERROR: {
-						hp.setStatus(HedgingPositionStatusConst.REJECTED);
-						break;
-					}
-					case BOOKING_MALFUNCTION: {
-						//TO DO
-						break;
-					}
-					default: {
-						break;
-					}
-				}
-				updateHedgingPosition(hp);
+                hp.updateStatusFromErrorLevel();
+                updateHedgingPosition(hp);
 			}
 		} catch(ARPSystemException e) {
 			LOGGER.log(Level.SEVERE,e.getMessage(), e);

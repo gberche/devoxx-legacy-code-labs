@@ -306,4 +306,24 @@ public class HedgingPosition extends BaseDTO {
                 ", hedgingTransactionId='" + hedgingTransactionId + '\'' +
                 '}';
     }
+
+    void updateStatusFromErrorLevel() {
+        switch(getErrorLevel()){
+            case FUNCTIONAL_ERROR:{
+                setStatus(HedgingPositionStatusConst.REJECTED);
+                break;
+            }
+            case CONNECT_ERROR: {
+                setStatus(HedgingPositionStatusConst.REJECTED);
+                break;
+            }
+            case BOOKING_MALFUNCTION: {
+                //TO DO
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
 }
