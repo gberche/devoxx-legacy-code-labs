@@ -60,10 +60,6 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		return result;
 	}
 
-    public interface HedginPositionMgrInvoker {
-        CheckResult<HedgingPosition> invoke(HedgingPosition hp);
-    }
-
     HedginPositionMgrInvoker hedginPositionMgrInvoker = new HedginPositionMgrInvoker() {
 
         @Override
