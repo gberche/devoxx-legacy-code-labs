@@ -1,4 +1,10 @@
 
+refactor:
+- extract ini, cancel, ext into Strategies
+
+
+
+
 - assert result returned ?
 
 - make test faster with set ups

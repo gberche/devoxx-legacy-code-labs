@@ -129,11 +129,13 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
         return hpUpdate;
 	}
 
+    interface PositionFiller {
+        void fillPosition();
+    }
 
-
-	private HedgingPosition initHedgingPosition(HedgingPosition hp) {
-        IHedgingPositionDataAccessService hpdas = DataAccessService.getHedgingPositionDataAccessService();
-		Transaction transaction = tradingDataAccessService.getTransactionById(hp.getId());
+	private HedgingPosition initHedgingPosition(final HedgingPosition hp) {
+        final IHedgingPositionDataAccessService hpdas = DataAccessService.getHedgingPositionDataAccessService();
+		final Transaction transaction = tradingDataAccessService.getTransactionById(hp.getId());
 		long dId = tradingDataAccessService.getOptionalIdFromTransaction(transaction);
 
 		double price = hpdas.getPriceQuote(dId, transaction);
@@ -153,84 +155,110 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		String userIni = getUser();
 		hp.setIkRtH(userIni);
 		switch (hp.getType()) {
-			case INI: {
-                String transactionWay = convertWayToTransactionWayCode(transaction);
+			case INI:
+                PositionFiller positionFiller = new IniPositionFiller(hp, hpdas, transaction, combck, valueDate);
+                positionFiller.fillPosition();
 
-				int bodCode = 0;
-				Integer stock = DataAccessService.getAnalyticalService().getRetrieveStockByActiveGK(transaction.getId(), transactionWay);
-				TradingOrder evt = hpdas.getTrade(transaction.getId());
-				boolean isStockForbidden = false;
-				if (stock == null) {
-					isStockForbidden = true;
-				}
-				if (!isStockForbidden) {
-					Book book = DataAccessService.getAnalyticalService().getBookByName(transaction.getBookName());
-					bodCode = book.getCode();
-				} else {
-					Book book = DataAccessService.getAnalyticalService().getBookByName(transaction.getBookName() + "-instock");
-					bodCode = Integer.parseInt(book.getPortfolioIdFromRank());
-				}
-				/*********************************** INPUT DEAL DATA *********************/
-				hp.setTransactionWay(transactionWay);
-				hp.setCodetyptkt(34);
-				hp.setCodtyptra(BigInteger.valueOf(bodCode));
-				hp.setQuantity(String.valueOf(evt.getPrice().getQuantity()));
-				hp.setBasprx(evt.getPrice().getFxPrice() / 100);
-				hp.setPrxref(evt.getPrice().getFxPrice());
-				hp.setCombck(combck);
-				/*********************************** INPUT EVENT DATA *********************/
-				hp.setTransactionId(transaction.getId());
-				hp.setValueDate(valueDate);
-			}
-			case CANCEL_TRANSACTION:
-				/*********************************** INPUT DEAL DATA *********************/
-				String hedgingPositionId = hpdas.getHedgingPositionIdByPositionKey(transaction.getPositionKey());
+            case CANCEL_TRANSACTION:
+                final Date finalValueDate = valueDate;
+                PositionFiller positionFiller1 = new PositionFiller() {
+                    @Override
+                    public void fillPosition() {
+                        handleCancelCase(hp, hpdas, transaction, finalValueDate);
+                    }
+                };
+                positionFiller1.fillPosition();
 
-				hp.setCodetyptkt(20);
-				/*********************************** INPUT EVENT DATA *********************/
-				hp.setValueDate(valueDate);
-				break;
+                break;
 			case EXT:
-				TradingOrder evt = hpdas.getTrade(transaction.getId());
-				double fxprice = -1d;
-				if (evt !=null ){
-					price = evt.getPrice().getPrice();
-					fxprice = evt.getPrice().getFxPrice();
-				}
-				if (price > 0) {
-					price = price * fxprice;
-				}
-				/*********************************** INPUT DEAL DATA *********************/
-				hp.setBasprx(price / 100);
-				hp.setPrxref(price);
-				hp.setCodetyptkt(42);
-				hp.setQuantity(String.valueOf(evt.getPrice().getQuantity()));
-				/*********************************** INPUT EVENT DATA *********************/
-				Date issueDate = transaction.getIssueDate();
-				Date tradeDate = transaction.getTradeDate();
-				if (DateTimeUtils.compareDate(issueDate,tradeDate)) {
-					hp.setCreDate(issueDate);
-					hp.setDaprx(tradeDate);
-					hp.setDatefinthe(valueDate);
-				} else {
-					hp.setCreDate(issueDate);
-					hp.setDaprx(tradeDate);
-					hp.setDatefinthe(tradeDate);
-					hp.setCombck(combck);
-				}
-				hp.setValueDate(valueDate);
+                handleExtCase(hp, hpdas, transaction, price, combck, valueDate);
 				break;
 			case CANCEL_POSITION:
-				/*********************************** INPUT DEAL DATA *********************/
-				hp.setCodetyptkt(20);
-				hp.setHedgingTransactionId(hedgingTransactionId);
-				/*********************************** INPUT EVENT DATA *********************/
-				hp.setValueDate(valueDate);
-				break;
+                handleCancelCase(hp, valueDate, hedgingTransactionId);
+
+                break;
 		}
 
 		return hp;
  	}
+
+    private void handleCancelCase(HedgingPosition hp, Date valueDate, String hedgingTransactionId) {
+        /*********************************** INPUT DEAL DATA *********************/
+        hp.setCodetyptkt(20);
+        hp.setHedgingTransactionId(hedgingTransactionId);
+        /*********************************** INPUT EVENT DATA *********************/
+        hp.setValueDate(valueDate);
+    }
+
+    private void handleExtCase(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, double price, String combck, Date valueDate) {
+        TradingOrder evt = hpdas.getTrade(transaction.getId());
+        double fxprice = -1d;
+        if (evt !=null ){
+            price = evt.getPrice().getPrice();
+            fxprice = evt.getPrice().getFxPrice();
+        }
+        if (price > 0) {
+            price = price * fxprice;
+        }
+        /*********************************** INPUT DEAL DATA *********************/
+        hp.setBasprx(price / 100);
+        hp.setPrxref(price);
+        hp.setCodetyptkt(42);
+        hp.setQuantity(String.valueOf(evt.getPrice().getQuantity()));
+        /*********************************** INPUT EVENT DATA *********************/
+        Date issueDate = transaction.getIssueDate();
+        Date tradeDate = transaction.getTradeDate();
+        if (DateTimeUtils.compareDate(issueDate, tradeDate)) {
+            hp.setCreDate(issueDate);
+            hp.setDaprx(tradeDate);
+            hp.setDatefinthe(valueDate);
+        } else {
+            hp.setCreDate(issueDate);
+            hp.setDaprx(tradeDate);
+            hp.setDatefinthe(tradeDate);
+            hp.setCombck(combck);
+        }
+        hp.setValueDate(valueDate);
+    }
+
+    private void handleCancelCase(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, Date valueDate) {
+        /*********************************** INPUT DEAL DATA *********************/
+        String hedgingPositionId = hpdas.getHedgingPositionIdByPositionKey(transaction.getPositionKey());
+
+        hp.setCodetyptkt(20);
+        /*********************************** INPUT EVENT DATA *********************/
+        hp.setValueDate(valueDate);
+    }
+
+    private void handleIniCase(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, String combck, Date valueDate) {
+        String transactionWay = convertWayToTransactionWayCode(transaction);
+
+        int bodCode = 0;
+        Integer stock = DataAccessService.getAnalyticalService().getRetrieveStockByActiveGK(transaction.getId(), transactionWay);
+        TradingOrder evt = hpdas.getTrade(transaction.getId());
+        boolean isStockForbidden = false;
+        if (stock == null) {
+            isStockForbidden = true;
+        }
+        if (!isStockForbidden) {
+            Book book = DataAccessService.getAnalyticalService().getBookByName(transaction.getBookName());
+            bodCode = book.getCode();
+        } else {
+            Book book = DataAccessService.getAnalyticalService().getBookByName(transaction.getBookName() + "-instock");
+            bodCode = Integer.parseInt(book.getPortfolioIdFromRank());
+        }
+        /*********************************** INPUT DEAL DATA *********************/
+        hp.setTransactionWay(transactionWay);
+        hp.setCodetyptkt(34);
+        hp.setCodtyptra(BigInteger.valueOf(bodCode));
+        hp.setQuantity(String.valueOf(evt.getPrice().getQuantity()));
+        hp.setBasprx(evt.getPrice().getFxPrice() / 100);
+        hp.setPrxref(evt.getPrice().getFxPrice());
+        hp.setCombck(combck);
+        /*********************************** INPUT EVENT DATA *********************/
+        hp.setTransactionId(transaction.getId());
+        hp.setValueDate(valueDate);
+    }
 
     private String convertWayToTransactionWayCode(Transaction transaction) {
         String transactionWay = new String();
@@ -257,4 +285,24 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 	}
 
 
+    private class IniPositionFiller implements PositionFiller {
+        private final HedgingPosition hp;
+        private final IHedgingPositionDataAccessService hpdas;
+        private final Transaction transaction;
+        private final String combck;
+        private final Date valueDate;
+
+        public IniPositionFiller(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, String combck, Date valueDate) {
+            this.hp = hp;
+            this.hpdas = hpdas;
+            this.transaction = transaction;
+            this.combck = combck;
+            this.valueDate = valueDate;
+        }
+
+        @Override
+        public void fillPosition() {
+            handleIniCase(hp, hpdas, transaction, combck, valueDate);
+        }
+    }
 }
