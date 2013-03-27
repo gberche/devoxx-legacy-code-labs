@@ -1,6 +1,5 @@
 package legacy.hedge;
 
-import legacy.DateTimeUtils;
 import legacy.dto.Modif;
 import legacy.security.User;
 import legacy.error.ARPSystemException;
@@ -183,68 +182,7 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		return hp;
  	}
 
-    private void handleCancelCase(HedgingPosition hp, Date valueDate, String hedgingTransactionId) {
-        /*********************************** INPUT DEAL DATA *********************/
-        hp.setCodetyptkt(20);
-        hp.setHedgingTransactionId(hedgingTransactionId);
-        /*********************************** INPUT EVENT DATA *********************/
-        hp.setValueDate(valueDate);
-    }
 
-    private void handleExtCase(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, double price, String combck, Date valueDate) {
-        TradingOrder evt = hpdas.getTrade(transaction.getId());
-        double fxprice = -1d;
-        if (evt !=null ){
-            price = evt.getPrice().getPrice();
-            fxprice = evt.getPrice().getFxPrice();
-        }
-        if (price > 0) {
-            price = price * fxprice;
-        }
-        /*********************************** INPUT DEAL DATA *********************/
-        hp.setBasprx(price / 100);
-        hp.setPrxref(price);
-        hp.setCodetyptkt(42);
-        hp.setQuantity(String.valueOf(evt.getPrice().getQuantity()));
-        /*********************************** INPUT EVENT DATA *********************/
-        Date issueDate = transaction.getIssueDate();
-        Date tradeDate = transaction.getTradeDate();
-        if (DateTimeUtils.compareDate(issueDate, tradeDate)) {
-            hp.setCreDate(issueDate);
-            hp.setDaprx(tradeDate);
-            hp.setDatefinthe(valueDate);
-        } else {
-            hp.setCreDate(issueDate);
-            hp.setDaprx(tradeDate);
-            hp.setDatefinthe(tradeDate);
-            hp.setCombck(combck);
-        }
-        hp.setValueDate(valueDate);
-    }
-
-    private void handleCancelCase(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, Date valueDate) {
-        /*********************************** INPUT DEAL DATA *********************/
-        String hedgingPositionId = hpdas.getHedgingPositionIdByPositionKey(transaction.getPositionKey());
-
-        hp.setCodetyptkt(20);
-        /*********************************** INPUT EVENT DATA *********************/
-        hp.setValueDate(valueDate);
-    }
-
-    private String convertWayToTransactionWayCode(Transaction transaction) {
-        String transactionWay = new String();
-        switch (transaction.getWay()) {
-            case LONG:
-                transactionWay = "L";
-                break;
-            case SHORT:
-                transactionWay = "S";
-                break;
-            default:
-                break;
-        }
-        return transactionWay;
-    }
 
     private String getUser() {
 		User user = UserSessionsManager.getInstance().getCurrentUser();
@@ -269,6 +207,21 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
             this.transaction = transaction;
             this.combck = combck;
             this.valueDate = valueDate;
+        }
+
+        private String convertWayToTransactionWayCode(Transaction transaction) {
+            String transactionWay = new String();
+            switch (transaction.getWay()) {
+                case LONG:
+                    transactionWay = "L";
+                    break;
+                case SHORT:
+                    transactionWay = "S";
+                    break;
+                default:
+                    break;
+            }
+            return transactionWay;
         }
 
         @Override
@@ -303,62 +256,4 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
         }
     }
 
-    private class CancelPositionFiller implements PositionFiller {
-        private final HedgingPosition hp;
-        private final Date finalValueDate1;
-        private final String finalHedgingTransactionId;
-
-        public CancelPositionFiller(HedgingPosition hp, Date finalValueDate1, String finalHedgingTransactionId) {
-            this.hp = hp;
-            this.finalValueDate1 = finalValueDate1;
-            this.finalHedgingTransactionId = finalHedgingTransactionId;
-        }
-
-        @Override
-        public void fillPosition() {
-            handleCancelCase(hp, finalValueDate1, finalHedgingTransactionId);
-        }
-    }
-
-    private class ExtPositionFiller implements PositionFiller {
-        private final HedgingPosition hp;
-        private final IHedgingPositionDataAccessService hpdas;
-        private final Transaction transaction;
-        private final double price;
-        private final String combck;
-        private final Date finalValueDate2;
-
-        public ExtPositionFiller(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, double price, String combck, Date finalValueDate2) {
-            this.hp = hp;
-            this.hpdas = hpdas;
-            this.transaction = transaction;
-            this.price = price;
-            this.combck = combck;
-            this.finalValueDate2 = finalValueDate2;
-        }
-
-        @Override
-        public void fillPosition() {
-            handleExtCase(hp, hpdas, transaction, price, combck, finalValueDate2);
-        }
-    }
-
-    private class CancelTransactionPositionFiller implements PositionFiller {
-        private final HedgingPosition hp;
-        private final IHedgingPositionDataAccessService hpdas;
-        private final Transaction transaction;
-        private final Date finalValueDate;
-
-        public CancelTransactionPositionFiller(HedgingPosition hp, IHedgingPositionDataAccessService hpdas, Transaction transaction, Date finalValueDate) {
-            this.hp = hp;
-            this.hpdas = hpdas;
-            this.transaction = transaction;
-            this.finalValueDate = finalValueDate;
-        }
-
-        @Override
-        public void fillPosition() {
-            handleCancelCase(hp, hpdas, transaction, finalValueDate);
-        }
-    }
 }
