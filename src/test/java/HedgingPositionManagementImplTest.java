@@ -2,6 +2,7 @@ import junit.framework.Assert;
 import legacy.dto.DateRange;
 import legacy.dto.Transaction;
 import legacy.error.CheckResult;
+import legacy.hedge.HedginPositionMgrInvoker;
 import legacy.hedge.HedgingPosition;
 import legacy.service.ITradingDataAccessService;
 import legacy.service.TransactionWay;
@@ -23,7 +24,7 @@ public class HedgingPositionManagementImplTest {
 	@Test
 	public void sendHedgingPositionWithDefaultPositionReturned() {
         legacy.hedge.HedgingPositionManagementImpl hedgingPositionManagement = new legacy.hedge.HedgingPositionManagementImpl();
-        hedgingPositionManagement.setHedginPositionMgrInvoker(new legacy.hedge.HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
+        hedgingPositionManagement.setHedginPositionMgrInvoker(new HedginPositionMgrInvoker() {
             @Override
             public CheckResult<HedgingPosition> invoke(HedgingPosition hp) {
                 Assert.assertEquals("HedgingPosition{basprx=0.0, transactionId=0, type=INI, status=null, valueDate=null, noticePeriodEndDate=null, combck='0 0 CONTROL: [0x0x0x01h]', codetyptkt=20, transactionWay='S', errorLevel=null, hedgeMsg='null', storageAction=null, prxref=0.0, daprx=null, quantity='0.0', datefinthe=null, codtyptra=23, msgdev='null', msgerr='null', niverr=null, msgusr='null', ikRtH='autobot', hedgingTransactionId='null'}", hp.toString());
