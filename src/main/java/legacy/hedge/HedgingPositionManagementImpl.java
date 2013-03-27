@@ -79,12 +79,28 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		return result;
 	}
 
-	private CheckResult<HedgingPosition> hedgePositionBySendTo3rdParty(HedgingPosition hp) {
+    public interface HedginPositionMgrInvoker {
+        CheckResult<HedgingPosition> invoke(HedgingPosition hp);
+    }
+
+    HedginPositionMgrInvoker hedginPositionMgrInvoker = new HedginPositionMgrInvoker() {
+
+        @Override
+        public CheckResult<HedgingPosition> invoke(HedgingPosition hp) {
+            return HedgingPositionMgt.hedgingPositionMgt(hp);
+        }
+    };
+
+    public void setHedginPositionMgrInvoker(HedginPositionMgrInvoker hedginPositionMgrInvoker) {
+        this.hedginPositionMgrInvoker = hedginPositionMgrInvoker;
+    }
+
+    private CheckResult<HedgingPosition> hedgePositionBySendTo3rdParty(HedgingPosition hp) {
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.log(Level.FINEST,"Begin 3r party processing. stand by");
 		}
 		CheckResult<HedgingPosition> result;
-		result = HedgingPositionMgt.hedgingPositionMgt(hp);
+        result = hedginPositionMgrInvoker.invoke(hp);
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.log(Level.FINEST,"3r party processing is now finished, thank you for your patience"); // t'es con michel
 		}

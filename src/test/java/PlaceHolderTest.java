@@ -8,14 +8,18 @@ public class PlaceHolderTest {
 	@Test
 	public void instanciateClass() {
         HedgingPositionManagementImpl hedgingPositionManagement = new HedgingPositionManagementImpl();
-
-        HedgingPosition hp = new HedgingPosition();
-        hedgingPositionManagement.initAndSendHedgingPosition(hp);
     }
 
 	@Test
-	public void sendHedgingPositionDoesNotReturn() {
+	public void sendHedgingPositionWithoutResultReturned() {
         HedgingPositionManagementImpl hedgingPositionManagement = new HedgingPositionManagementImpl();
+        hedgingPositionManagement.setHedginPositionMgrInvoker(new HedgingPositionManagementImpl.HedginPositionMgrInvoker() {
+            @Override
+            public CheckResult<HedgingPosition> invoke(HedgingPosition hp) {
+                return new CheckResult<HedgingPosition>();
+            }
+        });
+
 
         HedgingPosition hp = new HedgingPosition();
         CheckResult<HedgingPosition> result = hedgingPositionManagement.initAndSendHedgingPosition(hp);
