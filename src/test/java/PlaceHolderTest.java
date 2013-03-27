@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.Date;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +43,7 @@ public class PlaceHolderTest {
         DateRange dateRange = new DateRange();
         dateRange.setCreDate(new Date());
         dateRange.setUpdateVersion(93);
-        dateRange.setUpdateDate(new Date(2013,9,9));
+        dateRange.setUpdateDate(new Date(2013, 9, 9));
         transaction.setDateRange(dateRange);
         transaction.setOuterEdge(new Long(0));
         when(dataAccessService.getTransactionById(0)).thenReturn(transaction);
@@ -54,5 +55,6 @@ public class PlaceHolderTest {
         HedgingPosition hp = new HedgingPosition();
         CheckResult<HedgingPosition> result = hedgingPositionManagement.initAndSendHedgingPosition(hp);
         HedgingPosition hedgingPosition = result.getResult();
+        assertEquals("HedgingPosition{basprx=100.0, transactionId=0, type=INI, status=HEDGED, valueDate=null, noticePeriodEndDate=null, combck='null', codetyptkt=0, transactionWay='null', errorLevel=null, hedgeMsg='null', storageAction=CREATE, prxref=0.0, daprx=null, quantity='null', datefinthe=null, codtyptra=42, msgdev='null', msgerr='null', niverr=null, msgusr='null', ikRtH='null', hedgingTransactionId='null'}", hedgingPosition.toString());
     }
 }

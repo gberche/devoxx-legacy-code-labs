@@ -277,4 +277,33 @@ public class HedgingPosition extends BaseDTO {
 	public String getHedgingTransactionId() {
 		return hedgingTransactionId;
 	}
+
+    @Override
+    public String toString() {
+        return "HedgingPosition{" +
+                "basprx=" + basprx +
+                ", transactionId=" + transactionId +
+                ", type=" + type +
+                ", status=" + status +
+                ", valueDate=" + valueDate +
+                ", noticePeriodEndDate=" + noticePeriodEndDate +
+                ", combck='" + combck + '\'' +
+                ", codetyptkt=" + codetyptkt +
+                ", transactionWay='" + transactionWay + '\'' +
+                ", errorLevel=" + errorLevel +
+                ", hedgeMsg='" + hedgeMsg + '\'' +
+                ", storageAction=" + storageAction +
+                ", prxref=" + prxref +
+                ", daprx=" + daprx +
+                ", quantity='" + quantity + '\'' +
+                ", datefinthe=" + datefinthe +
+                ", codtyptra=" + codtyptra +
+                ", msgdev='" + msgdev + '\'' +
+                ", msgerr='" + msgerr + '\'' +
+                ", niverr=" + niverr +
+                ", msgusr='" + msgusr + '\'' +
+                ", ikRtH='" + ikRtH + '\'' +
+                ", hedgingTransactionId='" + hedgingTransactionId + '\'' +
+                '}';
+    }
 }
