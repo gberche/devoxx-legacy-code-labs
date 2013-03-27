@@ -25,6 +25,6 @@ public class PlaceHolderTest {
 
         HedgingPosition hp = new HedgingPosition();
         CheckResult<HedgingPosition> result = hedgingPositionManagement.initAndSendHedgingPosition(hp);
-
+        HedgingPosition hedgingPosition = result.getResult();
     }
 }

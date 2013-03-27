@@ -1,4 +1,14 @@
 
+- assert result returned ?
+
+- make test faster with set ups
+
+    - Mock TradingDataAccessServiceImpl
+        - golden copy TradingDataAccessServiceImpl
+
+- refactor() updateHedgingPosition ?
+
+
 - mock the static call HedgingPositionMgt.hedgingPositionMgt() to make the test faster
         - with interface and impl
         - with protected method subclassed

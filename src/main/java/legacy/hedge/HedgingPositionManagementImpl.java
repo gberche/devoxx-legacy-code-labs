@@ -26,9 +26,12 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 
 	private static int MAX_DECIMALS = 4;
 	private static Logger LOGGER = Logger.getLogger(HedgingPositionManagementImpl.class.getName());
-	private ITransactionManagerService transactionManagerService = DataAccessService.getTransactionManagerService();
+    private ITradingDataAccessService tradingDataAccessService = DataAccessService.getTradingDataAccessService();
+    private ITransactionManagerService transactionManagerService = DataAccessService.getTransactionManagerService();
 
-	@Override
+
+
+    @Override
 	public CheckResult<HedgingPosition> initAndSendHedgingPosition(HedgingPosition hp) throws ARPSystemException {
 		CheckResult<HedgingPosition> result = new CheckResult<HedgingPosition>();
 		try {
@@ -95,6 +98,10 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
         this.hedginPositionMgrInvoker = hedginPositionMgrInvoker;
     }
 
+    public void setTradingDataAccessService(ITradingDataAccessService tradingDataAccessService) {
+        this.tradingDataAccessService = tradingDataAccessService;
+    }
+
     private CheckResult<HedgingPosition> hedgePositionBySendTo3rdParty(HedgingPosition hp) {
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.log(Level.FINEST,"Begin 3r party processing. stand by");
@@ -123,14 +130,15 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
         return hpUpdate;
 	}
 
+
+
 	private HedgingPosition initHedgingPosition(HedgingPosition hp) {
-		ITradingDataAccessService trading = DataAccessService.getTradingDataAccessService();
-		IHedgingPositionDataAccessService hpdas = DataAccessService.getHedgingPositionDataAccessService();
-		Transaction transaction = trading.getTransactionById(hp.getId());
-		long dId = trading.getOptionalIdFromTransaction(transaction);
+        IHedgingPositionDataAccessService hpdas = DataAccessService.getHedgingPositionDataAccessService();
+		Transaction transaction = tradingDataAccessService.getTransactionById(hp.getId());
+		long dId = tradingDataAccessService.getOptionalIdFromTransaction(transaction);
 
 		double price = hpdas.getPriceQuote(dId, transaction);
-		long dps = trading.computeDPSOnTheGrid(transaction.getOuterEdge());
+		long dps = tradingDataAccessService.computeDPSOnTheGrid(transaction.getOuterEdge());
 		String combck = dId + " " + transaction.getId() + " CONTROL: [" + hpdas.getControl() + "]";
 		Date valueDate = new Date();
 		try {
