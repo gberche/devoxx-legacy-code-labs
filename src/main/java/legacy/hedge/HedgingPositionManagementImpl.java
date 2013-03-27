@@ -122,11 +122,10 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 				modif.setCreDate(new Date());
 				hp.setLastModification(modif);
 				hp.setStorageUpdate(StorageActionEnum.CREATE);
-				hpUpdate = transactionManagerService.classStorageAction(hp);
 			} else {
 				hp.setStorageUpdate(StorageActionEnum.UPDATE);
-				hpUpdate = transactionManagerService.classStorageAction(hp);
 			}
+            hpUpdate = transactionManagerService.classStorageAction(hp);
         return hpUpdate;
 	}
 
@@ -134,15 +133,11 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 
 	private HedgingPosition initHedgingPosition(HedgingPosition hp) {
         IHedgingPositionDataAccessService hpdas = DataAccessService.getHedgingPositionDataAccessService();
-        System.out.print("getting transaction:" + hp.getId() + "\n");
 		Transaction transaction = tradingDataAccessService.getTransactionById(hp.getId());
-        System.out.print("returned transaction:" + transaction + "\n");
 		long dId = tradingDataAccessService.getOptionalIdFromTransaction(transaction);
-        System.out.print("returned optional transaction id :" + dId+ "\n");
 
 		double price = hpdas.getPriceQuote(dId, transaction);
-		long dps = tradingDataAccessService.computeDPSOnTheGrid(transaction.getOuterEdge());
-        System.out.print("returned dps:" + dps+ "\n");
+        tradingDataAccessService.computeDPSOnTheGrid(transaction.getOuterEdge());
 		String combck = dId + " " + transaction.getId() + " CONTROL: [" + hpdas.getControl() + "]";
 		Date valueDate = new Date();
 		try {
