@@ -90,13 +90,6 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
         }
     };
 
-    public void setHedginPositionMgrInvoker(HedginPositionMgrInvoker hedginPositionMgrInvoker) {
-        this.hedginPositionMgrInvoker = hedginPositionMgrInvoker;
-    }
-
-    public void setTradingDataAccessService(ITradingDataAccessService tradingDataAccessService) {
-        this.tradingDataAccessService = tradingDataAccessService;
-    }
 
     private CheckResult<HedgingPosition> hedgePositionBySendTo3rdParty(HedgingPosition hp) {
 		if (LOGGER.isLoggable(Level.FINEST)) {
@@ -137,7 +130,7 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		final double price = hpdas.getPriceQuote(dId, transaction);
         tradingDataAccessService.computeDPSOnTheGrid(transaction.getOuterEdge());
 		final String combck = dId + " " + transaction.getId() + " CONTROL: [" + hpdas.getControl() + "]";
-		Date valueDate = new Date();
+		Date valueDate;
 		try {
 			valueDate = hp.getValueDate();
 		} catch(Exception e) {
@@ -190,5 +183,12 @@ public class HedgingPositionManagementImpl implements IHedgingPositionManagement
 		}
 	}
 
+    public void setHedginPositionMgrInvoker(HedginPositionMgrInvoker hedginPositionMgrInvoker) {
+        this.hedginPositionMgrInvoker = hedginPositionMgrInvoker;
+    }
+
+    public void setTradingDataAccessService(ITradingDataAccessService tradingDataAccessService) {
+        this.tradingDataAccessService = tradingDataAccessService;
+    }
 
 }
